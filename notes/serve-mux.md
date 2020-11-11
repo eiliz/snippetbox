@@ -35,18 +35,17 @@ The first call to Write will call WriteHeader with a 200 OK automatically before
 
 So WriteHeader is usually present when you want to send errors and must come before Write.
 
-Header gives you access to the response header map to add new headers
-and writing to it must always come before calls to WriteHeader and Write or else the headers added will be ignored.
+Header gives you access to the response header map to add new headers and writing to it must always come before calls to WriteHeader and Write or else the headers added will be ignored.
 
 ```
 w.Header().Set("Allow", http.MethodPost)
 ```
 
-WriteHeader will actually send the client the status code header
+WriteHeader will actually send the client the status code header.
 ```
 w.WriteHeader(405)
 ```
-Then the client gets his body data as well
+Then the client gets his body data as well.
 w.Write([]byte("Method not allowed"))
 
 
