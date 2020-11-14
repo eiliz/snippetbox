@@ -148,3 +148,19 @@ func main() {
   defer model.InsertStmt.Close()
 }
 ```
+
+### Important to keep in mind
+
+Prepared statements exist on db connections. The first time a prepared statement
+is used it's attached to one of the db connections from the pool of connections.
+The sql.Stmt object will remember this connection and attempt to use it again
+next time. If it happens that the connection has been closed or is in use, the
+statement has to be re-prepared on another connection.
+
+Under heavy load, it is possible that many statements will be created on
+multiple connections. This can lead to statements being prepared and re-prepared
+multiple times or even running into server-side limits on the number of
+statements (MySQL has a defualt limit of 16, 382 stmts).
+
+For the simple use cases it's preferred to use the regular Exec, Query, QueryRow
+methods that prepare the statements for you.
