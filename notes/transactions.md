@@ -4,7 +4,7 @@
 
 Go is not good at managing NULL values in db records.
 
-For example if a field contains a NULL values that is supposed to be converted
+For example if a field contains a NULL value that is supposed to be converted
 into a string that will fail. One solution is to change the field you're
 scanning into from string to sql.NullString.
 
@@ -66,7 +66,7 @@ func (m *Model) Transaction() error {
 ```
 
 Transactions are useful when you want to have the guarantee that multiple
-statements are executed a an atomic action. That means that:
+statements are executed as an atomic action. That means that:
 - either all statements succeed
 - or if any of them fails, nothing gets commited to the DB, not even the
   successful ones
