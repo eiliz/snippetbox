@@ -6,11 +6,16 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 
 	"github.com/eiliz/snippetbox/pkg/models/mysql"
 	_ "github.com/go-sql-driver/mysql"
 )
+
+type config struct {
+	addr      string
+	staticDir string
+	dsn       string
+}
 
 type neuteredFileSystem struct {
 	fs http.FileSystem
@@ -24,14 +29,18 @@ type neuteredFileSystem struct {
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	config   *config
 	snippets *mysql.SnippetModel
 }
 
 // can be started with the module name
 // go run github.com/eiliz/snippetbox
 func main() {
-	addr := flag.String("addr", ":4000", "HTTP newtwork address")
-	dsn := flag.String("dsn", "web:testing@/snippetbox?parseTime=true", "MySQL data source name")
+	cfg := new(config)
+	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP network address")
+	flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
+	flag.StringVar(&cfg.dsn, "dsn", "web:testing@/snippets?parseTime=true", "MySQL data source name")
+	flag.Parse()
 
 	// The SQL driver requires '?parseTime=true' in the DSN to be able to
 	// automatically transform TIME and DATE fields to time.Time objects.
@@ -42,7 +51,7 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	db, err := openDB(*dsn)
+	db, err := openDB(cfg.dsn)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
@@ -52,6 +61,7 @@ func main() {
 	app := application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
+		config:   cfg,
 		snippets: &mysql.SnippetModel{DB: db},
 	}
 
@@ -68,40 +78,15 @@ func main() {
 	// rather than use the http.ListenAndServe shortcut which creates the server
 	// and calls ListenAndServe on it.
 	srv := &http.Server{
-		Addr:     *addr,
+		Addr:     cfg.addr,
 		ErrorLog: errorLog,
 		Handler:  app.routes(),
 	}
 
-	infoLog.Printf("Starting server on http://localhost%s/<3/", *addr)
+	infoLog.Printf("Starting server on http://localhost%s/<3/", cfg.addr)
 	err = srv.ListenAndServe()
 
 	errorLog.Fatal(err)
-}
-
-func (nfs neuteredFileSystem) Open(path string) (http.File, error) {
-	f, err := nfs.fs.Open(path)
-
-	if err != nil {
-		return nil, err
-	}
-
-	s, err := f.Stat()
-	if s.IsDir() {
-		index := filepath.Join(path, "index.html")
-
-		if _, err := nfs.fs.Open(index); err != nil {
-			closeErr := f.Close()
-
-			if closeErr != nil {
-				return nil, closeErr
-			}
-
-			return nil, err
-		}
-	}
-
-	return f, nil
 }
 
 func openDB(dsn string) (*sql.DB, error) {

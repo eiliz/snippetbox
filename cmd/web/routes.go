@@ -1,6 +1,10 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/eiliz/snippetbox/pkg/nfs"
+)
 
 func (app *application) routes() *http.ServeMux {
 	mux := http.NewServeMux()
@@ -11,7 +15,7 @@ func (app *application) routes() *http.ServeMux {
 
 	// This removes the leading / from the URL path of the req and then starts
 	// looking for the asset inside the dir
-	fs := http.FileServer(neuteredFileSystem{http.Dir("./ui/static")})
+	fs := http.FileServer(nfs.NeuteredFileSystem{Fs: http.Dir(app.config.staticDir)})
 	mux.Handle("/static/", http.StripPrefix("/static", fs))
 
 	return mux
