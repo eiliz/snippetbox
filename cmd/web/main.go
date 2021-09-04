@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -27,10 +28,11 @@ type neuteredFileSystem struct {
 // as methods against this struct to make sure they have access to the loggers
 // or other deps from this struct.
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	config   *config
-	snippets *mysql.SnippetModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	config        *config
+	snippets      *mysql.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 // can be started with the module name
@@ -58,11 +60,17 @@ func main() {
 
 	defer db.Close()
 
+	templateCache, err := newTemplateCache("./ui/html/")
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	app := application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
-		config:   cfg,
-		snippets: &mysql.SnippetModel{DB: db},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		config:        cfg,
+		snippets:      &mysql.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	// Start a new web server listening on :4000 and using the mux as its router

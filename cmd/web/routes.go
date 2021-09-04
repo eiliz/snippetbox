@@ -4,19 +4,28 @@ import (
 	"net/http"
 
 	"github.com/eiliz/snippetbox/pkg/nfs"
+
+	"github.com/justinas/alice"
+
+	"github.com/bmizerany/pat"
 )
 
-func (app *application) routes() *http.ServeMux {
-	mux := http.NewServeMux()
+func (app *application) routes() http.Handler {
+	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippet", app.showSnippet)
-	mux.HandleFunc("/snippet/create", app.createSnippet)
+	mux := pat.New()
+
+	mux.Get("/", http.HandlerFunc(app.home))
+	// Register the exactly matched paths (snippet/create) before the snippet/:id
+	// because that one would match first otherwise.
+	mux.Get("/snippet/create", http.HandlerFunc(app.createSnippetForm))
+	mux.Post("/snippet/create", http.HandlerFunc(app.createSnippet))
+	mux.Get("/snippet/:id", http.HandlerFunc(app.showSnippet))
 
 	// This removes the leading / from the URL path of the req and then starts
 	// looking for the asset inside the dir
 	fs := http.FileServer(nfs.NeuteredFileSystem{Fs: http.Dir(app.config.staticDir)})
-	mux.Handle("/static/", http.StripPrefix("/static", fs))
+	mux.Get("/static/", http.StripPrefix("/static", fs))
 
-	return mux
+	return standardMiddleware.Then(mux)
 }
