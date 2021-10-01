@@ -28,7 +28,7 @@ func (app *application) routes() http.Handler {
 	mux.Post("/user/signup", dynamicMiddleware.Then(http.HandlerFunc(app.signupUser)))
 	mux.Get("/user/login", dynamicMiddleware.Then(http.HandlerFunc(app.loginUserForm)))
 	mux.Post("/user/login", dynamicMiddleware.Then(http.HandlerFunc(app.loginUser)))
-	mux.Get("/user/logout", dynamicMiddleware.Then(http.HandlerFunc(app.logoutUser)))
+	mux.Post("/user/logout", dynamicMiddleware.Then(http.HandlerFunc(app.logoutUser)))
 
 	// This removes the leading /static from the URL path of the req and then starts
 	// looking for the asset inside the dir

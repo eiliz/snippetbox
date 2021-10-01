@@ -48,9 +48,7 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flash := app.session.PopString(r, "flash")
-
-	app.render(w, r, "show.page.tmpl", &templateData{Flash: flash, Snippet: s})
+	app.render(w, r, "show.page.tmpl", &templateData{Snippet: s})
 }
 
 func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
@@ -153,5 +151,7 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Logout the user")
+	app.session.Remove(r, "authenticatedUserID")
+	app.session.Put(r, "flash", "You've been logged out successfully!")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
