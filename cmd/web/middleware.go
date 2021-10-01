@@ -7,9 +7,19 @@ import (
 
 func secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'")
-		w.Header().Set("X-XSS-Protection", "1;mode=block")
+		// X-Frame-Options does the same thing as Content-Security-Policy:
+		// frame-ancestors 'none'. But it's supported in older browsers
+		// where CSP isn't.
 		w.Header().Set("X-Frame-Options", "deny")
+		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'")
+
+		// The HTTP X-XSS-Protection response header  stops pages from loading
+		// when they detect reflected cross-site scripting (XSS) attacks.
+		// Although these protections are largely unnecessary in modern browsers
+		// when sites implement a strong Content-Security-Policy that disables
+		// the use of inline JavaScript ('unsafe-inline'), they can still provide
+		// protections for users of older web browsers that don't yet support CSP.
+		w.Header().Set("X-XSS-Protection", "1;mode=block")
 
 		next.ServeHTTP(w, r)
 	})

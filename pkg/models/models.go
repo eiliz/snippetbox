@@ -5,8 +5,13 @@ import (
 	"time"
 )
 
-// ErrNoRecord represents a custom error for a missing snippet
-var ErrNoRecord = errors.New("models: no matching record found")
+var (
+	ErrNoRecord = errors.New("models: no matching record found")
+
+	ErrInvalidCredentials = errors.New("models: invalid credentials")
+
+	ErrDuplicateEmail = errors.New("models: duplicate email")
+)
 
 // Snippet represents the snippet object
 type Snippet struct {
@@ -15,4 +20,13 @@ type Snippet struct {
 	Content string
 	Created time.Time
 	Expires time.Time
+}
+
+type User struct {
+	ID             int
+	Name           string
+	Email          string
+	HashedPassword []byte
+	Created        time.Time
+	Active         bool
 }

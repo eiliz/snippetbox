@@ -1,6 +1,6 @@
 package forms
 
-// This type will hold validations errors with the name of the field as a the
+// This type will hold validation errors with the name of the field as a the
 // key in the map.
 type errors map[string][]string
 
