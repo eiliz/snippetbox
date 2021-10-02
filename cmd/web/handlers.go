@@ -11,14 +11,6 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	// The pat mux matches / exactly so this check is not needed anymore.
-	// if r.URL.Path != "/" {
-	// 	app.notFound(w)
-
-	// 	// If we didn't return here, the handler would continue to execute the following lines
-	// 	return
-	// }
-
 	snippets, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, err)
