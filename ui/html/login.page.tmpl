@@ -5,9 +5,9 @@
 {{define "main"}}
 <form action="/user/login" method="POST" novalidate>
   {{with .Form}}
-  {{with .Errors.Get "generic"}}
-  <div class="error">{{.}}</div>
-  {{end}}
+    {{with .Errors.Get "generic"}}
+      <div class="error">{{.}}</div>
+    {{end}}
   <div>
     <label>Email:</label>
     <input type="email" name="email" value='{{.Get "email"}}'>
