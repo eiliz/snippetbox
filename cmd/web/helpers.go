@@ -64,5 +64,10 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 }
 
 func (app *application) isAuthenticated(r *http.Request) bool {
-	return app.session.Exists(r, "authenticatedUserID")
+	isAuthenticated, ok := r.Context().Value(contextKeyIsAuthenticated).(bool)
+	if !ok {
+		return false
+	}
+
+	return isAuthenticated
 }
