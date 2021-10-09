@@ -23,8 +23,13 @@ type templateData struct {
 	CSRFToken       string
 }
 
+// Returns the time in this format: "17 Dec 2020 at 10:00"
 func humanDate(t time.Time) string {
-	return t.Format("02 Jan 2006 at 15:04")
+	if t.IsZero() {
+		return ""
+	}
+
+	return t.UTC().Format("02 Jan 2006 at 15:04")
 }
 
 var functions = template.FuncMap{
