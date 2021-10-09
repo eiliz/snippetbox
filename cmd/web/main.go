@@ -37,6 +37,10 @@ type application struct {
 	templateCache map[string]*template.Template
 }
 
+type contextKey string
+
+const contextKeyIsAuthenticated = contextKey("isAuthenticated")
+
 // can be started with the module name
 // go run github.com/eiliz/snippetbox
 func main() {
@@ -69,6 +73,11 @@ func main() {
 
 	session := sessions.New([]byte(cfg.secret))
 	session.Lifetime = 12 * time.Hour
+	// The default value for the SameSite attribute of the session cookie is
+	// "Lax". If we made it "Strict", a logged in user that's being redirected
+	// to our app from a 3rd party would initially be treated as not logged in.
+	// After navigating to another page they'd be treated as logged in.
+	// session.SameSite=http.SameSiteStrictMode
 
 	app := application{
 		errorLog:      errorLog,
