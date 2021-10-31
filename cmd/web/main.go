@@ -30,7 +30,6 @@ type config struct {
 type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
-	config        *config
 	session       *sessions.Session
 	snippets      *mysql.SnippetModel
 	users         *mysql.UserModel
@@ -46,7 +45,6 @@ const contextKeyIsAuthenticated = contextKey("isAuthenticated")
 func main() {
 	cfg := new(config)
 	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP network address")
-	flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
 	flag.StringVar(&cfg.dsn, "dsn", "web:testing@/snippets?parseTime=true", "MySQL data source name")
 	flag.StringVar(&cfg.secret, "secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Secret key to encrypt cookies - 32 bytes long")
 
@@ -82,7 +80,6 @@ func main() {
 	app := application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
-		config:        cfg,
 		session:       session,
 		snippets:      &mysql.SnippetModel{DB: db},
 		users:         &mysql.UserModel{DB: db},

@@ -30,9 +30,11 @@ func (app *application) routes() http.Handler {
 	mux.Post("/user/login", dynamicMiddleware.Then(http.HandlerFunc(app.loginUser)))
 	mux.Post("/user/logout", dynamicMiddleware.Append(app.requireAuthentication).Then(http.HandlerFunc(app.logoutUser)))
 
+	mux.Get("/ping", http.HandlerFunc(ping))
+
 	// This removes the leading /static from the URL path of the req and then starts
 	// looking for the asset inside the dir
-	fs := http.FileServer(nfs.NeuteredFileSystem{Fs: http.Dir(app.config.staticDir)})
+	fs := http.FileServer(nfs.NeuteredFileSystem{Fs: http.Dir("./ui/static")})
 	mux.Get("/static/", http.StripPrefix("/static", fs))
 
 	return standardMiddleware.Then(mux)

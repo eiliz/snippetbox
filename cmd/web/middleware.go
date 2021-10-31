@@ -18,7 +18,7 @@ func secureHeaders(next http.Handler) http.Handler {
 		w.Header().Set("X-Frame-Options", "deny")
 		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'")
 
-		// The HTTP X-XSS-Protection response header  stops pages from loading
+		// The HTTP X-XSS-Protection response header stops pages from loading
 		// when they detect reflected cross-site scripting (XSS) attacks.
 		// Although these protections are largely unnecessary in modern browsers
 		// when sites implement a strong Content-Security-Policy that disables
